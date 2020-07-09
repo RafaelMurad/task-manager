@@ -1,7 +1,17 @@
 const express = require("express");
 const User = require("../models/user");
 const auth = require("../middleware/auth");
+const multer = require("multer");
 const router = new express.Router();
+
+//multer config
+const upload = multer({
+  dest: "avatar"
+});
+
+router.post("/users/me/avatar", upload.single("avatar"), (req, res) => {
+  res.send();
+});
 
 // Users endpoints
 
@@ -54,6 +64,8 @@ router.post("/users/logoutAll", auth, async (req, res) => {
     res.status(500).send();
   }
 });
+
+////////////
 
 router.get("/users/me", auth, async (req, res) => {
   res.send(req.user);
