@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
 
     email: {
@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
         if (!validator.isEmail(value)) {
           throw new Error("Use a valid email");
         }
-      }
+      },
     },
 
     password: {
@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema(
         if (value.toLowerCase().includes("password")) {
           throw new Error("Password must not contain 'password");
         }
-      }
+      },
     },
 
     age: {
@@ -44,33 +44,33 @@ const userSchema = new mongoose.Schema(
         if (value < 0) {
           throw new Error("Age must be a positive number");
         }
-      }
+      },
     },
 
     tokens: [
       {
         token: {
           type: String,
-          required: true
-        }
-      }
+          required: true,
+        },
+      },
     ],
     avatar: {
-      type: Buffer
-    }
+      type: Buffer,
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
 userSchema.virtual("tasks", {
   ref: "Task",
   localField: "_id",
-  foreignField: "owner"
+  foreignField: "owner",
 });
 
-userSchema.methods.toJSON = function() {
+userSchema.methods.toJSON = function () {
   const user = this;
   const userObject = user.toObject();
 
@@ -81,9 +81,9 @@ userSchema.methods.toJSON = function() {
   return userObject;
 };
 
-userSchema.methods.generateAuthToken = async function() {
+userSchema.methods.generateAuthToken = async function () {
   const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, "thisismynewcourse");
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
 
   user.tokens = user.tokens.concat({ token });
   await user.save();
@@ -107,7 +107,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
 };
 
 //hash plain text password before saving
-userSchema.pre("save", async function(next) {
+userSchema.pre("save", async function (next) {
   const user = this;
 
   if (user.isModified("password")) {
@@ -119,7 +119,7 @@ userSchema.pre("save", async function(next) {
 
 //delete user tasks when user is removed
 
-userSchema.pre("remove", async function(next) {
+userSchema.pre("remove", async function (next) {
   const user = this;
   await Task.deleteMany({ owner: user._id });
   next();
